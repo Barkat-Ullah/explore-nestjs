@@ -4,23 +4,22 @@ import {
   Get,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
   Query,
 } from '@nestjs/common';
 import { TicketsService } from './tickets.service.js';
-import { Tickets } from './tickets.interface.js';
 import { CreateTicketDto } from './dto/create-ticket-dto.js';
+import { FilterTicketsQueryDto } from './dto/filter-dto.js';
+import { UpdateTicketDto } from './dto/update-ticket.js';
 
 @Controller('tickets')
 export class TicketsController {
   constructor(private readonly ticketsService: TicketsService) {}
 
   @Get()
-  findAll(
-    @Query('status') status?: Tickets['status'],
-    @Query('priority') priority?: Tickets['priority'],
-  ) {
-    return this.ticketsService.findAll(status, priority);
+  findAll(@Query() filters: FilterTicketsQueryDto) {
+    return this.ticketsService.findAll(filters.status, filters.priority);
   }
   @Get(':id')
   findById(@Param('id', ParseIntPipe) id: number) {
@@ -29,5 +28,13 @@ export class TicketsController {
   @Post()
   createTicket(@Body() createTicketDto: CreateTicketDto) {
     return this.ticketsService.createTicket(createTicketDto);
+  }
+
+  @Patch(':id')
+  updateTicket(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateTicketDto: UpdateTicketDto,
+  ) {
+  return this.ticketsService.updateTicket(id, updateTicketDto);
   }
 }

@@ -1,6 +1,7 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { Tickets } from './tickets.interface.js';
 import { CreateTicketDto } from './dto/create-ticket-dto.js';
+import { UpdateTicketDto } from './dto/update-ticket.js';
 
 @Injectable()
 export class TicketsService {
@@ -33,13 +34,17 @@ export class TicketsService {
 
   private nextId = 4;
 
-  findAll(status?:Tickets['status'], priority?:Tickets['priority']) {
+  findAll(status?: Tickets['status'], priority?: Tickets['priority']) {
     let filteredTickets = this.tickets;
     if (status) {
-      filteredTickets = filteredTickets.filter((ticket) => ticket.status === status);
+      filteredTickets = filteredTickets.filter(
+        (ticket) => ticket.status === status,
+      );
     }
     if (priority) {
-      filteredTickets = filteredTickets.filter((ticket) => ticket.priority === priority);
+      filteredTickets = filteredTickets.filter(
+        (ticket) => ticket.priority === priority,
+      );
     }
     return filteredTickets;
   }
@@ -50,7 +55,7 @@ export class TicketsService {
     }
     return ticket;
   }
-  createTicket(createTicketDto:CreateTicketDto) {
+  createTicket(createTicketDto: CreateTicketDto) {
     const newTicket: Tickets = {
       id: this.nextId++,
       subject: createTicketDto.subject,
@@ -61,5 +66,13 @@ export class TicketsService {
     };
     this.tickets.push(newTicket);
     return newTicket;
+  }
+  updateTicket(id: number, updateTicketDto: UpdateTicketDto) {
+    const ticket = this.findById(id);
+    if (ticket.status === 'closed') {
+      throw new BadRequestException(`Cannot update a closed ticket`);
+    }
+    Object.assign(ticket, updateTicketDto);
+    return ticket;
   }
 }

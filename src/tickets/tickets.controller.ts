@@ -35,6 +35,10 @@ export class TicketsController {
     @Param('id', ParseIntPipe) id: number,
     @Body() updateTicketDto: UpdateTicketDto,
   ) {
-  return this.ticketsService.updateTicket(id, updateTicketDto);
+    return this.ticketsService.updateTicket(id, updateTicketDto);
+  }
+  @Patch(':id/close')
+  closeTicket(@Param('id', ParseIntPipe) id: number) {
+    return this.ticketsService.closedTicket(id);
   }
 }
